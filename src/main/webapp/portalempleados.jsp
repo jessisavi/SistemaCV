@@ -99,7 +99,7 @@
             document.addEventListener('DOMContentLoaded', function () {
                 var loginForm = document.getElementById('loginForm');
                 var togglePassword = document.getElementById('togglePassword');
-                var passwordInput = document.getElementById('contrasena'); // ID corregido
+                var passwordInput = document.getElementById('contrasena'); 
                 var submitBtn = document.getElementById('submitBtn');
                 var usuarioInput = document.getElementById('usuario');
 

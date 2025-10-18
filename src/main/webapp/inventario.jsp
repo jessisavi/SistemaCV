@@ -13,7 +13,7 @@
     <head>
         <meta charset="UTF-8">
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Inventario | Materiales de Construcción</title>
+        <title>Inventario | Bodega de Logistica Stylish Home</title>
         <link rel="stylesheet" href="${pageContext.request.contextPath}/css/StyleIN.css">
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
@@ -170,17 +170,25 @@
                         <div class="card-header card-header-custom">
                             <h5 class="mb-0">Productos en Inventario</h5>
                             <div class="d-flex">
-                                <div class="search-box me-3">
-                                    <i class="fas fa-search"></i>
-                                    <input type="text" class="form-control" placeholder="Buscar productos..." style="width: 250px;" id="searchInput">
-                                </div>
-                                <select class="form-select" style="width: 180px;" id="categoryFilter">
-                                    <option value="">Todas las categorías</option>
-                                    <% if (categorias != null) { 
-                                    for (Categoria categoria : categorias) { %>
-                                    <option value="<%= categoria.getNombre() %>"><%= categoria.getNombre() %></option>
-                                    <% } } %>
-                                </select>
+                                <form method="get" action="${pageContext.request.contextPath}/inventario" class="d-flex me-3">
+                                    <div class="search-box me-2">
+                                        <i class="fas fa-search"></i>
+                                        <input type="text" name="busqueda" class="form-control" placeholder="Buscar productos..." 
+                                               style="width: 250px;" value="${param.busqueda}">
+                                    </div>
+                                    <button type="submit" class="btn btn-custom">Buscar</button>
+                                </form>
+                                <form method="get" action="${pageContext.request.contextPath}/inventario" class="d-flex">
+                                    <select class="form-select me-2" name="categoria" style="width: 180px;" onchange="this.form.submit()">
+                                        <option value="">Todas las categorías</option>
+                                        <c:forEach var="categoria" items="${categorias}">
+                                            <option value="${categoria.id}" ${param.categoria == categoria.id ? 'selected' : ''}>
+                                                ${categoria.nombre}
+                                            </option>
+                                        </c:forEach>
+                                    </select>
+                                    <a href="${pageContext.request.contextPath}/inventario" class="btn btn-outline-secondary">Limpiar</a>
+                                </form>
                             </div>
                         </div>
                         <div class="card-body">
@@ -299,7 +307,7 @@
                                                                     });
                                                                 });
 
-                                                                // Filtro por categoría
+                                                                // Filtro por categorías
                                                                 document.getElementById('categoryFilter').addEventListener('change', function () {
                                                                     const filter = this.value.toLowerCase();
                                                                     const rows = document.querySelectorAll('#productsTable tbody tr');

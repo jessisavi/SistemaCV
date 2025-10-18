@@ -1,35 +1,77 @@
 package portalempleadosmodelo;
 
+import jakarta.persistence.*;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "productos")
 public class Producto {
 
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "idproducto") 
     private int id;
+
+    @Column(name = "codigo", unique = true, nullable = false, length = 50)
     private String codigo;
+
+    @Column(name = "nombre", nullable = false, length = 200)
     private String nombre;
+
+    @Column(name = "descripcion", columnDefinition = "TEXT")
     private String descripcion;
+
+    @Column(name = "color", length = 50)
     private String color;
+
+    @Column(name = "categoria_id")
     private int categoriaId;
+
+    @Transient
     private String categoriaNombre;
+
+    @Column(name = "precio", nullable = false, precision = 10, scale = 2)
     private BigDecimal precio;
+
+    @Column(name = "MT", length = 10) 
+    private String mt;
+
+    @Column(name = "stock", nullable = false)
     private int stock;
-    private int stockMinimo;
+
+    @Column(name = "ubicacion", length = 100)
     private String ubicacion;
+
+    @Column(name = "proveedor_id")
     private int proveedorId;
+
+    @Transient
     private String proveedorNombre;
+
+    @Column(name = "acabado", length = 50)
     private String acabado;
+
+    @Column(name = "trafico", length = 50)
     private String trafico;
+
+    @Column(name = "rectificado")
     private boolean rectificado;
+
+    @Column(name = "imagen", length = 255)
     private String imagen;
+
+    @Column(name = "fecha_creacion")
     private LocalDateTime fechaCreacion;
+
+    @Column(name = "fecha_actualizacion")
     private LocalDateTime fechaActualizacion;
 
     public Producto() {
     }
 
     public Producto(int id, String codigo, String nombre, String descripcion, String color,
-            int categoriaId, BigDecimal precio, int stock, int stockMinimo,
+            int categoriaId, BigDecimal precio, String mt, int stock,
             String ubicacion, int proveedorId, String acabado, String trafico,
             boolean rectificado, String imagen) {
         this.id = id;
@@ -39,8 +81,8 @@ public class Producto {
         this.color = color;
         this.categoriaId = categoriaId;
         this.precio = precio;
+        this.mt = mt;
         this.stock = stock;
-        this.stockMinimo = stockMinimo;
         this.ubicacion = ubicacion;
         this.proveedorId = proveedorId;
         this.acabado = acabado;
@@ -113,20 +155,20 @@ public class Producto {
         this.precio = precio;
     }
 
+    public String getMt() {
+        return mt;
+    }
+
+    public void setMt(String mt) {
+        this.mt = mt;
+    }
+
     public int getStock() {
         return stock;
     }
 
     public void setStock(int stock) {
         this.stock = stock;
-    }
-
-    public int getStockMinimo() {
-        return stockMinimo;
-    }
-
-    public void setStockMinimo(int stockMinimo) {
-        this.stockMinimo = stockMinimo;
     }
 
     public String getUbicacion() {
@@ -199,5 +241,16 @@ public class Producto {
 
     public void setFechaActualizacion(LocalDateTime fechaActualizacion) {
         this.fechaActualizacion = fechaActualizacion;
+    }
+
+    @PrePersist
+    protected void onCreate() {
+        fechaCreacion = LocalDateTime.now();
+        fechaActualizacion = LocalDateTime.now();
+    }
+
+    @PreUpdate
+    protected void onUpdate() {
+        fechaActualizacion = LocalDateTime.now();
     }
 }

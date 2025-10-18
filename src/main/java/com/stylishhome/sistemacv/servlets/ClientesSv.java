@@ -1,10 +1,6 @@
 package com.stylishhome.sistemacv.servlets;
 
 import java.io.IOException;
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -18,10 +14,19 @@ import jakarta.servlet.http.HttpServlet;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
-import portalempleado.utilidades.BasedeDatos;
+import portalempleadosmodelo.Cliente;
+import sistemacv.dao.ClienteDAO;
 
 @WebServlet(name = "ClientesSv", urlPatterns = {"/clientes"})
 public class ClientesSv extends HttpServlet {
+
+    private ClienteDAO clienteDAO;
+
+    @Override
+    public void init() throws ServletException {
+        super.init();
+        clienteDAO = new ClienteDAO();
+    }
 
     @Override
     protected void doGet(HttpServletRequest request, HttpServletResponse response)
@@ -82,46 +87,34 @@ public class ClientesSv extends HttpServlet {
     private void mostrarListaClientes(HttpServletRequest request, HttpServletResponse response)
             throws ServletException, IOException {
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
         try {
-            conn = BasedeDatos.getConnection();
-            String sql = "SELECT idcliente, nombre, apellido, correo_electronico, celular, tipo_cliente, fecha_registro, "
-                    + "tipo_documento, numero_documento "
-                    + "FROM clientes ORDER BY fecha_registro DESC";
-
-            pstmt = conn.prepareStatement(sql);
-            rs = pstmt.executeQuery();
-
+            List<Cliente> listaClientes = clienteDAO.obtenerTodosLosClientes();
             List<Map<String, String>> clientes = new ArrayList<>();
             SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
 
-            while (rs.next()) {
-                Map<String, String> cliente = new HashMap<>();
-                cliente.put("id", String.valueOf(rs.getInt("idcliente")));
-                cliente.put("codigo", "CL-" + String.format("%05d", rs.getInt("idcliente")));
-                cliente.put("nombre", rs.getString("nombre") + " " + rs.getString("apellido"));
-                cliente.put("email", rs.getString("correo_electronico"));
-                cliente.put("telefono", rs.getString("celular"));
-                cliente.put("tipo", rs.getString("tipo_cliente"));
+            for (Cliente cliente : listaClientes) {
+                Map<String, String> clienteMap = new HashMap<>();
+                clienteMap.put("id", String.valueOf(cliente.getIdcliente()));
+                clienteMap.put("codigo", "CL-" + String.format("%05d", cliente.getIdcliente()));
+                clienteMap.put("nombre", cliente.getNombre() + " " + (cliente.getApellido() != null ? cliente.getApellido() : ""));
+                clienteMap.put("email", cliente.getCorreoElectronico());
+                clienteMap.put("telefono", cliente.getCelular());
+                clienteMap.put("tipo", cliente.getTipoCliente());
 
-                Date fechaRegistro = rs.getDate("fecha_registro");
-                cliente.put("fecha_registro", fechaRegistro != null ? dateFormat.format(fechaRegistro) : "N/A");
+                Date fechaRegistro = cliente.getFechaRegistro() != null
+                        ? java.sql.Date.valueOf(cliente.getFechaRegistro()) : null;
+                clienteMap.put("fecha_registro", fechaRegistro != null ? dateFormat.format(fechaRegistro) : "N/A");
 
-                clientes.add(cliente);
+                clientes.add(clienteMap);
             }
 
             request.setAttribute("clientes", clientes);
             request.getRequestDispatcher("/clienteLista.jsp").forward(request, response);
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             request.setAttribute("error", "Error al cargar la lista de clientes: " + e.getMessage());
             request.getRequestDispatcher("/clienteLista.jsp").forward(request, response);
-        } finally {
-            BasedeDatos.cerrarRecursos(conn, pstmt, rs);
         }
     }
 
@@ -135,39 +128,31 @@ public class ClientesSv extends HttpServlet {
             return;
         }
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-        ResultSet rs = null;
-
         try {
-            conn = BasedeDatos.getConnection();
+            Cliente cliente = clienteDAO.obtenerClientePorId(Integer.parseInt(idCliente));
 
-            String sqlCliente = "SELECT * FROM clientes WHERE idcliente = ?";
-            pstmt = conn.prepareStatement(sqlCliente);
-            pstmt.setInt(1, Integer.parseInt(idCliente));
-            rs = pstmt.executeQuery();
+            if (cliente != null) {
+                Map<String, String> clienteMap = new HashMap<>();
+                clienteMap.put("id", String.valueOf(cliente.getIdcliente()));
+                clienteMap.put("codigo", "CL-" + String.format("%05d", cliente.getIdcliente()));
+                clienteMap.put("nombre", cliente.getNombre());
+                clienteMap.put("apellido", cliente.getApellido());
+                clienteMap.put("email", cliente.getCorreoElectronico());
+                clienteMap.put("telefono", cliente.getCelular());
+                clienteMap.put("tipo_documento", cliente.getTipoDocumento());
+                clienteMap.put("numero_documento", cliente.getNumeroDocumento());
+                clienteMap.put("direccion", cliente.getDireccion());
+                clienteMap.put("ciudad", cliente.getCiudad());
+                clienteMap.put("tipo_cliente", cliente.getTipoCliente());
 
-            if (rs.next()) {
-                Map<String, String> cliente = new HashMap<>();
-                cliente.put("id", String.valueOf(rs.getInt("idcliente")));
-                cliente.put("codigo", "CL-" + String.format("%05d", rs.getInt("idcliente")));
-                cliente.put("nombre", rs.getString("nombre"));
-                cliente.put("apellido", rs.getString("apellido"));
-                cliente.put("email", rs.getString("correo_electronico"));
-                cliente.put("telefono", rs.getString("celular"));
-                cliente.put("tipo_documento", rs.getString("tipo_documento"));
-                cliente.put("numero_documento", rs.getString("numero_documento"));
-                cliente.put("direccion", rs.getString("direccion"));
-                cliente.put("ciudad", rs.getString("ciudad"));
-                cliente.put("tipo_cliente", rs.getString("tipo_cliente"));
-
-                Date fechaRegistro = rs.getDate("fecha_registro");
+                Date fechaRegistro = cliente.getFechaRegistro() != null
+                        ? java.sql.Date.valueOf(cliente.getFechaRegistro()) : null;
                 SimpleDateFormat dateFormat = new SimpleDateFormat("dd/MM/yyyy");
-                cliente.put("fecha_registro", fechaRegistro != null ? dateFormat.format(fechaRegistro) : "N/A");
+                clienteMap.put("fecha_registro", fechaRegistro != null ? dateFormat.format(fechaRegistro) : "N/A");
 
-                cliente.put("estado", "Activo");
+                clienteMap.put("estado", "Activo");
 
-                request.setAttribute("cliente", cliente);
+                request.setAttribute("cliente", clienteMap);
 
                 List<Map<String, String>> compras = new ArrayList<>();
                 request.setAttribute("compras", compras);
@@ -177,11 +162,9 @@ public class ClientesSv extends HttpServlet {
                 response.sendRedirect("clientes?error=Cliente no encontrado");
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("clientes?error=Error al cargar el cliente: " + e.getMessage());
-        } finally {
-            BasedeDatos.cerrarRecursos(conn, pstmt, rs);
         }
     }
 
@@ -191,35 +174,25 @@ public class ClientesSv extends HttpServlet {
         Map<String, String> cliente = null;
 
         if (idCliente != null && !idCliente.isEmpty()) {
-            Connection conn = null;
-            PreparedStatement pstmt = null;
-            ResultSet rs = null;
-
             try {
-                conn = BasedeDatos.getConnection();
-                String sql = "SELECT * FROM clientes WHERE idcliente = ?";
-                pstmt = conn.prepareStatement(sql);
-                pstmt.setInt(1, Integer.parseInt(idCliente));
-                rs = pstmt.executeQuery();
+                Cliente clienteObj = clienteDAO.obtenerClientePorId(Integer.parseInt(idCliente));
 
-                if (rs.next()) {
+                if (clienteObj != null) {
                     cliente = new HashMap<>();
-                    cliente.put("id", String.valueOf(rs.getInt("idcliente")));
-                    cliente.put("nombre", rs.getString("nombre"));
-                    cliente.put("apellido", rs.getString("apellido"));
-                    cliente.put("correo_electronico", rs.getString("correo_electronico"));
-                    cliente.put("celular", rs.getString("celular"));
-                    cliente.put("tipo_documento", rs.getString("tipo_documento"));
-                    cliente.put("numero_documento", rs.getString("numero_documento"));
-                    cliente.put("direccion", rs.getString("direccion"));
-                    cliente.put("ciudad", rs.getString("ciudad"));
-                    cliente.put("tipo_cliente", rs.getString("tipo_cliente"));
+                    cliente.put("id", String.valueOf(clienteObj.getIdcliente()));
+                    cliente.put("nombre", clienteObj.getNombre());
+                    cliente.put("apellido", clienteObj.getApellido());
+                    cliente.put("correo_electronico", clienteObj.getCorreoElectronico());
+                    cliente.put("celular", clienteObj.getCelular());
+                    cliente.put("tipo_documento", clienteObj.getTipoDocumento());
+                    cliente.put("numero_documento", clienteObj.getNumeroDocumento());
+                    cliente.put("direccion", clienteObj.getDireccion());
+                    cliente.put("ciudad", clienteObj.getCiudad());
+                    cliente.put("tipo_cliente", clienteObj.getTipoCliente());
                 }
-            } catch (SQLException e) {
+            } catch (Exception e) {
                 e.printStackTrace();
                 request.setAttribute("error", "Error al cargar el cliente: " + e.getMessage());
-            } finally {
-                BasedeDatos.cerrarRecursos(conn, pstmt, rs);
             }
         }
 
@@ -229,9 +202,6 @@ public class ClientesSv extends HttpServlet {
 
     private void guardarCliente(HttpServletRequest request, HttpServletResponse response)
             throws IOException {
-
-        Connection conn = null;
-        PreparedStatement pstmt = null;
 
         try {
             String id = request.getParameter("id");
@@ -245,67 +215,45 @@ public class ClientesSv extends HttpServlet {
             String correoElectronico = request.getParameter("correo_electronico");
             String tipoCliente = request.getParameter("tipo_cliente");
 
-            if (nombre == null || nombre.trim().isEmpty()
-                    || apellido == null || apellido.trim().isEmpty()) {
+            if (nombre == null || nombre.trim().isEmpty() || apellido == null || apellido.trim().isEmpty()) {
                 response.sendRedirect("clientes?action=nuevo&error=El nombre y apellido son requeridos");
                 return;
             }
 
-            conn = BasedeDatos.getConnection();
+            Cliente cliente = new Cliente();
+            cliente.setNombre(nombre);
+            cliente.setApellido(apellido);
+            cliente.setTipoDocumento(tipoDocumento);
+            cliente.setNumeroDocumento(numeroDocumento);
+            cliente.setDireccion(direccion);
+            cliente.setCiudad(ciudad);
+            cliente.setCelular(celular);
+            cliente.setCorreoElectronico(correoElectronico);
+            cliente.setTipoCliente(tipoCliente != null ? tipoCliente : "Regular");
+            cliente.setFechaRegistro(java.time.LocalDate.now());
 
+            boolean exito;
             if (id == null || id.isEmpty()) {
-
-                String sql = "INSERT INTO clientes (nombre, apellido, tipo_documento, numero_documento, "
-                        + "direccion, ciudad, celular, correo_electronico, tipo_cliente, fecha_registro) "
-                        + "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, CURDATE())";
-
-                pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, nombre);
-                pstmt.setString(2, apellido);
-                pstmt.setString(3, tipoDocumento);
-                pstmt.setString(4, numeroDocumento);
-                pstmt.setString(5, direccion);
-                pstmt.setString(6, ciudad);
-                pstmt.setString(7, celular);
-                pstmt.setString(8, correoElectronico);
-                pstmt.setString(9, tipoCliente != null ? tipoCliente : "Regular");
-
+                exito = clienteDAO.crearCliente(cliente);
             } else {
-                String sql = "UPDATE clientes SET nombre = ?, apellido = ?, tipo_documento = ?, "
-                        + "numero_documento = ?, direccion = ?, ciudad = ?, celular = ?, "
-                        + "correo_electronico = ?, tipo_cliente = ? WHERE idcliente = ?";
-
-                pstmt = conn.prepareStatement(sql);
-                pstmt.setString(1, nombre);
-                pstmt.setString(2, apellido);
-                pstmt.setString(3, tipoDocumento);
-                pstmt.setString(4, numeroDocumento);
-                pstmt.setString(5, direccion);
-                pstmt.setString(6, ciudad);
-                pstmt.setString(7, celular);
-                pstmt.setString(8, correoElectronico);
-                pstmt.setString(9, tipoCliente != null ? tipoCliente : "Regular");
-                pstmt.setInt(10, Integer.parseInt(id));
+                cliente.setIdcliente(Integer.parseInt(id));
+                exito = clienteDAO.actualizarCliente(cliente);
             }
 
-            int filasAfectadas = pstmt.executeUpdate();
-
-            if (filasAfectadas > 0) {
+            if (exito) {
                 response.sendRedirect("clientes?success=Cliente " + (id != null ? "actualizado" : "creado") + " correctamente");
             } else {
                 response.sendRedirect("clientes?error=No se pudo guardar el cliente");
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             String errorMsg = "Error al guardar el cliente: " + e.getMessage();
-            if (e.getMessage().contains("Duplicate entry")) {
+            if (e.getMessage() != null && e.getMessage().contains("Duplicate entry")) {
                 errorMsg = "Error: El número de documento o correo electrónico ya existe";
             }
             response.sendRedirect("clientes?action=" + (request.getParameter("id") != null ? "editar&id=" + request.getParameter("id") : "nuevo")
                     + "&error=" + java.net.URLEncoder.encode(errorMsg, "UTF-8"));
-        } finally {
-            BasedeDatos.cerrarRecursos(conn, pstmt);
         }
     }
 
@@ -319,28 +267,18 @@ public class ClientesSv extends HttpServlet {
             return;
         }
 
-        Connection conn = null;
-        PreparedStatement pstmt = null;
-
         try {
-            conn = BasedeDatos.getConnection();
-            String sql = "DELETE FROM clientes WHERE idcliente = ?";
-            pstmt = conn.prepareStatement(sql);
-            pstmt.setInt(1, Integer.parseInt(id));
+            boolean exito = clienteDAO.eliminarCliente(Integer.parseInt(id));
 
-            int filasAfectadas = pstmt.executeUpdate();
-
-            if (filasAfectadas > 0) {
+            if (exito) {
                 response.sendRedirect("clientes?success=Cliente eliminado correctamente");
             } else {
                 response.sendRedirect("clientes?error=No se pudo eliminar el cliente");
             }
 
-        } catch (SQLException e) {
+        } catch (Exception e) {
             e.printStackTrace();
             response.sendRedirect("clientes?error=Error al eliminar el cliente: " + e.getMessage());
-        } finally {
-            BasedeDatos.cerrarRecursos(conn, pstmt);
         }
     }
 }

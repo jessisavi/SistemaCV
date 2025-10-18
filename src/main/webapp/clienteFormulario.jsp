@@ -36,27 +36,22 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/productos">
                             <i class="fas fa-box"></i> Productos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/cotizaciones">
                             <i class="fas fa-file-invoice"></i> Cotizaciones
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-file-invoice"></i> Pedidos
+                        <a class="nav-link" href="${pageContext.request.contextPath}/ventas">
+                            <i class="fas fa-file-invoice"></i> Ventas
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-file-invoice-dollar"></i> Facturación
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/informes">
                             <i class="fas fa-chart-line"></i> Informes
                         </a>
                     </li>
@@ -68,12 +63,15 @@
                 </ul>
             </div>
             <div class="main-content flex-grow-1" id="mainContent">
-                <nav class="navbar navbar-custom mb-4 d-flex">
+                <nav class="navbar navbar-custom mb-4">
                     <div class="container-fluid">
                         <div class="d-flex align-items-center">
                             <button class="toggle-sidebar me-3" id="toggleSidebar">
                                 <i class="fas fa-bars"></i>
                             </button>
+                            <a href="clientes" class="btn btn-outline-secondary me-2">
+                                <i class="fas fa-arrow-left me-2"></i>Volver a Clientes
+                            </a>
                             <h4 class="mb-0">Creacion de cliente</h4>
                         </div>
 
@@ -372,68 +370,48 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const toggleSidebar = document.querySelector('.toggle-sidebar');
-                const sidebar = document.querySelector('.sidebar');
-                const mainContent = document.querySelector('.main-content');
+            const forms = document.querySelectorAll('.needs-validation');
+            Array.from(forms).forEach(form => {
+                form.addEventListener('submit', event => {
+                    if (!form.checkValidity()) {
+                        event.preventDefault();
+                        event.stopPropagation();
+                    }
+                    form.classList.add('was-validated');
+                }, false);
+            });
 
-                if (toggleSidebar) {
-                    toggleSidebar.addEventListener('click', function () {
-                        sidebar.classList.toggle('d-none');
-                        sidebar.classList.toggle('d-md-block');
-                    });
+            const nombreInput = document.getElementById('nombre');
+            const apellidoInput = document.getElementById('apellido');
+            if (nombreInput && apellidoInput && ${empty cliente}) {
+                function generarCodigo() {
+                    const nombre = nombreInput.value.trim();
+                    const apellido = apellidoInput.value.trim();
+                    if (nombre && apellido) {
+                        const codigo = (nombre.substring(0, 3) + apellido.substring(0, 3)).toUpperCase();
+                        console.log('Código sugerido:', codigo);
+                    }
                 }
 
-                // Validación de formulario
-                const forms = document.querySelectorAll('.needs-validation');
-                Array.from(forms).forEach(form => {
-                    form.addEventListener('submit', event => {
-                        if (!form.checkValidity()) {
-                            event.preventDefault();
-                            event.stopPropagation();
-                        }
-                        form.classList.add('was-validated');
-                    }, false);
-                });
-                // Auto-generar código de cliente para nuevos registros
-                const nombreInput = document.getElementById('nombre');
-                const apellidoInput = document.getElementById('apellido');
-                if (nombreInput && apellidoInput && ${empty cliente}) {
-                    function generarCodigo() {
-                        const nombre = nombreInput.value.trim();
-                        const apellido = apellidoInput.value.trim();
-                        if (nombre && apellido) {
-                            const codigo = (nombre.substring(0, 3) + apellido.substring(0, 3)).toUpperCase();
-                            // Aquí podrías asignar el código a un campo hidden si lo necesitas
-                            console.log('Código sugerido:', codigo);
-                        }
-                    }
+                nombreInput.addEventListener('blur', generarCodigo);
+                apellidoInput.addEventListener('blur', generarCodigo);
+            }
 
-                    nombreInput.addEventListener('blur', generarCodigo);
-                    apellidoInput.addEventListener('blur', generarCodigo);
-                }
-
-                // Mostrar/ocultar campos según tipo de cliente
-                const tipoClienteSelect = document.getElementById('tipo_cliente');
-                const limiteCreditoGroup = document.getElementById('limite_credito').closest('.mb-3');
-                const descuentoGroup = document.getElementById('descuento').closest('.mb-3');
-                function toggleCamposPremium() {
-                    if (tipoClienteSelect.value === 'Premium') {
-                        limiteCreditoGroup.style.display = 'block';
-                        descuentoGroup.style.display = 'block';
-                    } else {
-                        limiteCreditoGroup.style.display = 'block';
-                        descuentoGroup.style.display = 'block';
-                        // Para mostrar siempre estos campos, puedes comentar las líneas anteriores
-                        // y descomentar las siguientes si quieres ocultarlos para Regular:
-                        // limiteCreditoGroup.style.display = 'none';
-                        // descuentoGroup.style.display = 'none';
-                    }
+            const tipoClienteSelect = document.getElementById('tipo_cliente');
+            const limiteCreditoGroup = document.getElementById('limite_credito').closest('.mb-3');
+            const descuentoGroup = document.getElementById('descuento').closest('.mb-3');
+            function toggleCamposPremium() {
+                if (tipoClienteSelect.value === 'Premium') {
+                    limiteCreditoGroup.style.display = 'block';
+                    descuentoGroup.style.display = 'block';
+                } else {
+                    limiteCreditoGroup.style.display = 'block';
+                    descuentoGroup.style.display = 'block';
                 }
 
                 if (tipoClienteSelect) {
                     tipoClienteSelect.addEventListener('change', toggleCamposPremium);
-                    toggleCamposPremium(); // Ejecutar al cargar la página
+                    toggleCamposPremium();
                 }
             }
             );

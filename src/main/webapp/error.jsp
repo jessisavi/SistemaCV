@@ -27,17 +27,19 @@
                     String requestUri = (String) request.getAttribute("jakarta.servlet.error.request_uri");
                     String servletName = (String) request.getAttribute("jakarta.servlet.error.servlet_name");
                     Throwable throwable = (Throwable) request.getAttribute("jakarta.servlet.error.exception");
-      
+                    
                     String customError = (String) request.getAttribute("error");
                     String customMessage = (String) request.getAttribute("message");
                     
+                    Throwable ex = throwable != null ? throwable : (Throwable) request.getAttribute("jakarta.servlet.error.exception");
+    
                     String mainMessage = "Ha ocurrido un error inesperado. Por favor, intente nuevamente.";
-                    
+    
                     if (customError != null) {
                         mainMessage = customError;
                     } else if (errorMessage != null && !errorMessage.trim().isEmpty()) {
                         mainMessage = errorMessage;
-                    } else if (ex != null && ex.getMessage() != null) { 
+                    } else if (ex != null && ex.getMessage() != null) {
                         mainMessage = ex.getMessage();
                     }
                 %>
@@ -68,10 +70,7 @@
                             </p>
                         </div>
                     </div>
-                    <% 
-    Throwable ex = throwable != null ? throwable : (Throwable) request.getAttribute("jakarta.servlet.error.exception");
-                    %>
-
+                            
                     <% if (ex != null) { %>
                     <button class="btn btn-sm btn-outline-secondary mt-2" onclick="toggleTechnicalDetails()">
                         <i class="fas fa-code me-1"></i>Mostrar detalles técnicos

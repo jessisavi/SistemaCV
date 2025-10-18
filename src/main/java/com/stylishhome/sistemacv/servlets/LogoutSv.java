@@ -1,4 +1,4 @@
-package com.stylishhome.sistema.servlets;
+package com.stylishhome.sistemacv.servlets;
 
 import jakarta.servlet.ServletException;
 import jakarta.servlet.annotation.WebServlet;
