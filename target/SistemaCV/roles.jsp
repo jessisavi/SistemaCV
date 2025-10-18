@@ -277,7 +277,7 @@
                                             </div>
                                             <div class="form-check mb-2">
                                                 <input class="form-check-input" type="checkbox" name="permisos" value="eliminar_productos" id="perm11">
-                                                <label class="form-check-label" for="perm11">Eliminar productos</label>
+                                                <label class="form-check-label" for="perm11">Eliminar producto</label>
                                             </div>
                                             <div class="form-check mb-2">
                                                 <input class="form-check-input" type="checkbox" name="permisos" value="gestion_compra" id="perm12">

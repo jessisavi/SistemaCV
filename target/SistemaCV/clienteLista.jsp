@@ -36,27 +36,22 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/productos">
                             <i class="fas fa-box"></i> Productos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/cotizaciones">
                             <i class="fas fa-file-invoice"></i> Cotizaciones
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-file-invoice"></i> Pedidos
+                        <a class="nav-link" href="${pageContext.request.contextPath}/ventas">
+                            <i class="fas fa-file-invoice"></i> Ventas
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-file-invoice-dollar"></i> Facturación
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/informes">
                             <i class="fas fa-chart-line"></i> Informes
                         </a>
                     </li>
@@ -68,7 +63,7 @@
                 </ul>
             </div>
             <div class="main-content flex-grow-1" id="mainContent">
-                <nav class="navbar navbar-custom mb-4 d-flex">
+                <nav class="navbar navbar-custom mb-4">
                     <div class="container-fluid">
                         <div class="d-flex align-items-center">
                             <button class="toggle-sidebar me-3" id="toggleSidebar">
@@ -319,60 +314,41 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-// Toggle sidebar simplificado
-                                                                                document.getElementById('toggleSidebar').addEventListener('click', function () {
-                                                                                    const sidebar = document.getElementById('sidebar');
-                                                                                    const mainContent = document.getElementById('mainContent');
-                                                                                    sidebar.classList.toggle('sidebar-collapsed');
-                                                                                    mainContent.classList.toggle('main-content-expanded');
-                                                                                });
+            // Script para toggle sidebar
+            document.getElementById('toggleSidebar').addEventListener('click', function () {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
 
-                                                                                function filterByType(type) {
-                                                                                    if (type) {
-                                                                                        window.location.href = 'clientes?action=lista&tipo=' + type;
-                                                                                    } else {
-                                                                                        window.location.href = 'clientes';
-                                                                                    }
-                                                                                }
+                sidebar.classList.toggle('sidebar-collapsed');
+                mainContent.classList.toggle('main-content-expanded');
+            });
 
-                                                                                function filterByStatus(status) {
-                                                                                    if (status) {
-                                                                                        window.location.href = 'clientes?action=lista&estado=' + status;
-                                                                                    } else {
-                                                                                        window.location.href = 'clientes';
-                                                                                    }
-                                                                                }
+            // Filtros
+            function filterByType(type) {
+                window.location.href = type ? `clientes?action=lista&tipo=${type}` : 'clientes';
+            }
 
-                                                                                // Función para buscar en tiempo real (opcional)
-                                                                                function liveSearch() {
-                                                                                    const input = document.querySelector('input[name="search"]');
-                                                                                    const table = document.querySelector('table tbody');
-                                                                                    const rows = table.getElementsByTagName('tr');
+            function filterByStatus(status) {
+                window.location.href = status ? `clientes?action=lista&estado=${status}` : 'clientes';
+            }
 
-                                                                                    input.addEventListener('keyup', function () {
-                                                                                        const filter = input.value.toLowerCase();
+            // Búsqueda en tiempo real (solo si no hay búsqueda del servidor)
+            document.addEventListener('DOMContentLoaded', () => {
+                const searchInput = document.querySelector('input[name="search"]');
+                const tableBody = document.querySelector('table tbody');
 
-                                                                                        for (let i = 0; i < rows.length; i++) {
-                                                                                            const cells = rows[i].getElementsByTagName('td');
-                                                                                            let found = false;
+                if (searchInput && tableBody && !searchInput.value) {
+                    searchInput.addEventListener('input', (e) => {
+                        const filter = e.target.value.toLowerCase();
+                        const rows = tableBody.getElementsByTagName('tr');
 
-                                                                                            for (let j = 0; j < cells.length; j++) {
-                                                                                                const cellText = cells[j].textContent || cells[j].innerText;
-                                                                                                if (cellText.toLowerCase().indexOf(filter) > -1) {
-                                                                                                    found = true;
-                                                                                                    break;
-                                                                                                }
-                                                                                            }
-
-                                                                                            rows[i].style.display = found ? '' : 'none';
-                                                                                        }
-                                                                                    });
-                                                                                }
-
-                                                                                // Inicializar búsqueda en tiempo real si no hay búsqueda del servidor
-            <c:if test="${empty param.search}">
-                                                                                liveSearch();
-            </c:if>
+                        Array.from(rows).forEach(row => {
+                            const text = row.textContent.toLowerCase();
+                            row.style.display = text.includes(filter) ? '' : 'none';
+                        });
+                    });
+                }
+            });
         </script>
     </body>
 </html>

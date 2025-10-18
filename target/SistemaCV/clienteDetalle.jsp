@@ -13,13 +13,13 @@
         <meta name="viewport" content="width=device-width, initial-scale=1.0">
         <title>Detalle de Cliente | Sistema Empresarial</title>
         <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/StyleCD.css">
         <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
         <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@300;400;500;700&display=swap" rel="stylesheet">
-        <link rel="stylesheet" href="${pageContext.request.contextPath}/css/StyleCD.css">
     </head>
     <body>
         <div class="d-flex">
-            <div class="sidebar d-none d-md-block">
+            <div class="sidebar" id="sidebar">
                 <div style="text-align: center;">
                     <img src="${pageContext.request.contextPath}/images/StylishHome.jpg" 
                          alt="Imagen corporativa" style="height: 14rem;">
@@ -36,27 +36,22 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/productos">
                             <i class="fas fa-box"></i> Productos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/cotizaciones">
                             <i class="fas fa-file-invoice"></i> Cotizaciones
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-file-invoice"></i> Pedidos
+                        <a class="nav-link" href="${pageContext.request.contextPath}/ventas">
+                            <i class="fas fa-file-invoice"></i> Ventas
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-file-invoice-dollar"></i> Facturación
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/informes">
                             <i class="fas fa-chart-line"></i> Informes
                         </a>
                     </li>
@@ -67,11 +62,11 @@
                     </li>
                 </ul>
             </div>
-            <div class="main-content flex-grow-1">
+            <div class="main-content flex-grow-1" id="mainContent">
                 <nav class="navbar navbar-custom mb-4">
                     <div class="container-fluid">
                         <div class="d-flex align-items-center">
-                            <button class="toggle-sidebar me-3">
+                            <button class="toggle-sidebar me-3" id="toggleSidebar">
                                 <i class="fas fa-bars"></i>
                             </button>
                             <a href="clientes" class="btn btn-outline-secondary me-2">
@@ -80,7 +75,40 @@
                             <h4 class="mb-0">Detalle del Cliente</h4>
                         </div>
                         <div class="d-flex align-items-center">
-                            <span class="me-3">${sessionScope.nombreUsuario} (${sessionScope.rolUsuario})</span>
+                            <div class="input-group me-3" style="width: 250px;">
+                                <input type="text" class="form-control" placeholder="Buscar...">
+                                <button class="btn btn-outline-secondary" type="button">
+                                    <i class="fas fa-search"></i>
+                                </button>
+                            </div>
+                            <div class="dropdown me-3">
+                                <button class="btn btn-light dropdown-toggle position-relative" type="button" id="notificationsDropdown" data-bs-toggle="dropdown">
+                                    <i class="fas fa-bell"></i>
+                                    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">4</span>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="notificationsDropdown">
+                                    <li><h6 class="dropdown-header">Notificaciones</h6></li>
+                                    <li><a class="dropdown-item" href="#">COT-2025-00123 vencida</a></li>
+                                    <li><a class="dropdown-item" href="#">Stock bajo en cerámicas madrid</a></li>
+                                    <li><a class="dropdown-item" href="#">Pedido PED-2025-00125 facturado</a></li>
+                                    <li><a class="dropdown-item" href="#">Actualización del sistema</a></li>
+                                </ul>
+                            </div>
+                            <div class="dropdown">
+                                <button class="btn btn-light dropdown-toggle d-flex align-items-center" type="button" id="userDropdown" data-bs-toggle="dropdown">
+                                    <div class="me-2 d-none d-md-block">
+                                        <small class="text-muted">${not empty rolUsuario ? rolUsuario : 'Asesor Comercial'}</small>
+                                        <div class="text-dark fw-bold">${not empty nombreUsuario ? nombreUsuario : 'Usuario'}</div>
+                                    </div>
+                                    <div class="logo-placeholder">${not empty nombreUsuario ? nombreUsuario.charAt(0) : 'U'}</div>
+                                </button>
+                                <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="userDropdown">
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-user me-2"></i>Perfil</a></li>
+                                    <li><a class="dropdown-item" href="#"><i class="fas fa-cog me-2"></i>Configuración</a></li>
+                                    <li><hr class="dropdown-divider"></li>
+                                    <li><a class="dropdown-item" href="${pageContext.request.contextPath}/logout"><i class="fas fa-sign-out-alt me-2"></i>Cerrar Sesión</a></li>
+                                </ul>
+                            </div>
                         </div>
                     </div>
                 </nav>
@@ -236,7 +264,6 @@
                                                 <i class="fas fa-dollar-sign me-1"></i>
                                                 <c:choose>
                                                     <c:when test="${not empty compras && compras.size() > 0}">
-                                                        <!-- Aquí puedes calcular el total real cuando tengas datos de compras -->
                                                         $0
                                                     </c:when>
                                                     <c:otherwise>
@@ -324,7 +351,6 @@
                                         </c:choose>
                                     </div>
                                 </div>
-
                                 <!-- Historial de compras -->
                                 <div class="card card-custom mt-4">
                                     <div class="card-header card-header-custom d-flex justify-content-between align-items-center">
@@ -395,26 +421,21 @@
 
         <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
         <script>
-            document.addEventListener('DOMContentLoaded', function () {
-                const toggleSidebar = document.querySelector('.toggle-sidebar');
-                const sidebar = document.querySelector('.sidebar');
-                const mainContent = document.querySelector('.main-content');
+            // Script para toggle sidebar
+            document.getElementById('toggleSidebar').addEventListener('click', function () {
+                const sidebar = document.getElementById('sidebar');
+                const mainContent = document.getElementById('mainContent');
 
-                if (toggleSidebar) {
-                    toggleSidebar.addEventListener('click', function () {
-                        sidebar.classList.toggle('d-none');
-                        sidebar.classList.toggle('d-md-block');
-                    });
-                }
+                sidebar.classList.toggle('sidebar-collapsed');
+                mainContent.classList.toggle('main-content-expanded');
+            });
 
-                // Activar/desactivar filtros de actividad
-                const filterButtons = document.querySelectorAll('.btn-group .btn');
-                filterButtons.forEach(button => {
-                    button.addEventListener('click', function () {
-                        filterButtons.forEach(btn => btn.classList.remove('active'));
-                        this.classList.add('active');
-                    });
-                });
+            // Activar/desactivar filtros de actividad
+            const filterButtons = document.querySelectorAll('.btn-group .btn');
+            filterButtons.forEach(button => {
+            button.addEventListener('click', function () {
+            filterButtons.forEach(btn => btn.classList.remove('active'));
+                    this.classList.add('active');
             });
         </script>
     </body>

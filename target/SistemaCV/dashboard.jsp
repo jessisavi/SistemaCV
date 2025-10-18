@@ -48,27 +48,22 @@
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/productos">
                             <i class="fas fa-box"></i> Productos
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/cotizaciones">
                             <i class="fas fa-file-invoice"></i> Cotizaciones
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-file-invoice"></i> Pedidos
+                        <a class="nav-link" href="${pageContext.request.contextPath}/ventas">
+                            <i class="fas fa-file-invoice"></i> Ventas
                         </a>
                     </li>
                     <li class="nav-item">
-                        <a class="nav-link" href="#">
-                            <i class="fas fa-file-invoice-dollar"></i> Facturación
-                        </a>
-                    </li>
-                    <li class="nav-item">
-                        <a class="nav-link" href="#">
+                        <a class="nav-link" href="${pageContext.request.contextPath}/informes">
                             <i class="fas fa-chart-line"></i> Informes
                         </a>
                     </li>
@@ -80,7 +75,7 @@
                 </ul>
             </div>
             <div class="main-content flex-grow-1" id="mainContent">
-                <nav class="navbar navbar-custom mb-4 d-flex">
+                <nav class="navbar navbar-custom mb-4">
                     <div class="container-fluid">
                         <div class="d-flex align-items-center">
                             <button class="toggle-sidebar me-3" id="toggleSidebar">
@@ -198,247 +193,251 @@
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <div class="quick-action">
-                                            <i class="fas fa-file-invoice action-accent"></i>
-                                            <h6>Crear Cotización</h6>
-                                            <small class="text-muted">Generar nueva cotización</small>
+                                            <a href="${pageContext.request.contextPath}/cotizaciones?action=nuevo" class="quick-action text-decoration-none">
+                                                <i class="fas fa-file-invoice action-accent"></i>
+                                                <h6 class="text-dark">Crear Cotización</h6>
+                                                <small class="text-muted">Generar nueva cotización</small>
+                                            </a>
                                         </div>
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <div class="quick-action">
-                                            <i class="fas fa-box action-success"></i>
-                                            <h6>Agregar Producto</h6>
-                                            <small class="text-muted">Añadir al inventario</small>
+                                            <a href="${pageContext.request.contextPath}/productos" class="quick-action text-decoration-none">
+                                                <i class="fas fa-box action-success"></i>
+                                                <h6 class="text-dark">Ver Productos</h6>
+                                                <small class="text-muted">Verificar disponibilidad</small>
+                                            </a>
                                         </div>
                                     </div>
                                     <div class="col-md-3 mb-3">
                                         <div class="quick-action">
-                                            <i class="fas fa-chart-pie action-danger"></i>
-                                            <h6>Ver Reportes</h6>
-                                            <small class="text-muted">Analizar estadísticas</small>
+                                            <a href="${pageContext.request.contextPath}/informes" class="quick-action text-decoration-none">
+                                                <i class="fas fa-chart-pie action-danger"></i>
+                                                <h6 class="text-dark">Ver Reportes</h6>
+                                                <small class="text-muted">Analizar estadísticas</small>
+                                            </a>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" data-aos="fade-up" data-aos-delay="200">
+                                    <div class="col-md-8 mb-4">
+                                        <div class="stats-container">
+                                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                                <h5 class="mb-0">Ventas Mensuales</h5>
+                                                <div class="dropdown">
+                                                    <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="chartDropdown" data-bs-toggle="dropdown">
+                                                        Últimos 12 meses
+                                                    </button>
+                                                    <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chartDropdown">
+                                                        <li><a class="dropdown-item" href="#">Últimos 6 meses</a></li>
+                                                        <li><a class="dropdown-item" href="#">Últimos 12 meses</a></li>
+                                                        <li><a class="dropdown-item" href="#">Este año</a></li>
+                                                        <li><a class="dropdown-item" href="#">Año anterior</a></li>
+                                                    </ul>
+                                                </div>
+                                            </div>
+                                            <div class="chart-container">
+                                                <canvas id="salesChart"></canvas>
+                                            </div>
+                                            <div class="chart-legend">
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #cb9a28;"></div>
+                                                    <small>Ventas Totales</small>
+                                                </div>
+                                                <div class="legend-item">
+                                                    <div class="legend-color" style="background-color: #000000;"></div>
+                                                    <small>Objetivo</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                    <div class="col-md-4 mb-4">
+                                        <div class="stats-container">
+                                            <h5 class="mb-4">Actividad Reciente</h5>
+                                            <div class="activity-item">
+                                                <div class="activity-dot"></div>
+                                                <div>
+                                                    <h6>Nueva cotización</h6>
+                                                    <p class="text-muted small">Constructora Andina - $28.450.000</p>
+                                                    <small class="text-muted">Hace 15 minutos</small>
+                                                </div>
+                                            </div>
+                                            <div class="activity-item">
+                                                <div class="activity-dot"></div>
+                                                <div>
+                                                    <h6>Cliente registrado</h6>
+                                                    <p class="text-muted small">Arq. María Pérez</p>
+                                                    <small class="text-muted">Hace 2 horas</small>
+                                                </div>
+                                            </div>
+                                            <div class="activity-item">
+                                                <div class="activity-dot"></div>
+                                                <div>
+                                                    <h6>Venta realizada</h6>
+                                                    <p class="text-muted small">Porcelanato Marmol - $9.200.000</p>
+                                                    <small class="text-muted">Hoy, 10:45 AM</small>
+                                                </div>
+                                            </div>
+                                            <div class="activity-item">
+                                                <div class="activity-dot"></div>
+                                                <div>
+                                                    <h6>Stock actualizado</h6>
+                                                    <p class="text-muted small">Cerámica Madrid 60x60</p>
+                                                    <small class="text-muted">Ayer, 5:30 PM</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="row" data-aos="fade-up" data-aos-delay="300">
+                                    <div class="col-12">
+                                        <div class="stats-container">
+                                            <div class="d-flex justify-content-between align-items-center mb-4">
+                                                <h5 class="mb-0">Últimas Cotizaciones</h5>
+                                                <a href="#" class="btn btn-sm btn-outline-custom">Ver Todas</a>
+                                            </div>
+                                            <div class="table-responsive">
+                                                <table class="table table-hover">
+                                                    <thead>
+                                                        <tr>
+                                                            <th>N° Cotización</th>
+                                                            <th>Cliente</th>
+                                                            <th>Fecha</th>
+                                                            <th>Total</th>
+                                                            <th>Estado</th>
+                                                            <th>Acciones</th>
+                                                        </tr>
+                                                    </thead>
+                                                    <tbody>
+                                                        <tr>
+                                                            <td>COT-2025-00125</td>
+                                                            <td>Constructora Andina S.A.</td>
+                                                            <td>15/05/2025</td>
+                                                            <td>$38.450.000</td>
+                                                            <td><span class="badge bg-success">Aprobada</span></td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>COT-2025-00124</td>
+                                                            <td>Arq. María Pérez</td>
+                                                            <td>02/05/2025</td>
+                                                            <td>$13.200.000</td>
+                                                            <td><span class="badge bg-success">Aprobada</span></td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                        <tr>
+                                                            <td>COT-2025-00123</td>
+                                                            <td>Ing. Carlos Gómez</td>
+                                                            <td>12/05/2025</td>
+                                                            <td>$9.750.000</td>
+                                                            <td><span class="badge bg-danger">Pendiente</span></td>
+                                                            <td>
+                                                                <button class="btn btn-sm btn-outline-secondary">
+                                                                    <i class="fas fa-eye"></i>
+                                                                </button>
+                                                            </td>
+                                                        </tr>
+                                                    </tbody>
+                                                </table>
+                                            </div>
                                         </div>
                                     </div>
                                 </div>
                             </div>
                         </div>
                     </div>
-                    <div class="row" data-aos="fade-up" data-aos-delay="200">
-                        <div class="col-md-8 mb-4">
-                            <div class="stats-container">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h5 class="mb-0">Ventas Mensuales</h5>
-                                    <div class="dropdown">
-                                        <button class="btn btn-sm btn-outline-secondary dropdown-toggle" type="button" id="chartDropdown" data-bs-toggle="dropdown">
-                                            Últimos 12 meses
-                                        </button>
-                                        <ul class="dropdown-menu dropdown-menu-end" aria-labelledby="chartDropdown">
-                                            <li><a class="dropdown-item" href="#">Últimos 6 meses</a></li>
-                                            <li><a class="dropdown-item" href="#">Últimos 12 meses</a></li>
-                                            <li><a class="dropdown-item" href="#">Este año</a></li>
-                                            <li><a class="dropdown-item" href="#">Año anterior</a></li>
-                                        </ul>
-                                    </div>
-                                </div>
-                                <div class="chart-container">
-                                    <canvas id="salesChart"></canvas>
-                                </div>
-                                <div class="chart-legend">
-                                    <div class="legend-item">
-                                        <div class="legend-color" style="background-color: #cb9a28;"></div>
-                                        <small>Ventas Totales</small>
-                                    </div>
-                                    <div class="legend-item">
-                                        <div class="legend-color" style="background-color: #000000;"></div>
-                                        <small>Objetivo</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                        <div class="col-md-4 mb-4">
-                            <div class="stats-container">
-                                <h5 class="mb-4">Actividad Reciente</h5>
-                                <div class="activity-item">
-                                    <div class="activity-dot"></div>
-                                    <div>
-                                        <h6>Nueva cotización</h6>
-                                        <p class="text-muted small">Constructora Andina - $28.450.000</p>
-                                        <small class="text-muted">Hace 15 minutos</small>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-dot"></div>
-                                    <div>
-                                        <h6>Cliente registrado</h6>
-                                        <p class="text-muted small">Arq. María Pérez</p>
-                                        <small class="text-muted">Hace 2 horas</small>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-dot"></div>
-                                    <div>
-                                        <h6>Venta realizada</h6>
-                                        <p class="text-muted small">Porcelanato Marmol - $9.200.000</p>
-                                        <small class="text-muted">Hoy, 10:45 AM</small>
-                                    </div>
-                                </div>
-                                <div class="activity-item">
-                                    <div class="activity-dot"></div>
-                                    <div>
-                                        <h6>Stock actualizado</h6>
-                                        <p class="text-muted small">Cerámica Madrid 60x60</p>
-                                        <small class="text-muted">Ayer, 5:30 PM</small>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                    <div class="row" data-aos="fade-up" data-aos-delay="300">
-                        <div class="col-12">
-                            <div class="stats-container">
-                                <div class="d-flex justify-content-between align-items-center mb-4">
-                                    <h5 class="mb-0">Últimas Cotizaciones</h5>
-                                    <a href="#" class="btn btn-sm btn-outline-custom">Ver Todas</a>
-                                </div>
-                                <div class="table-responsive">
-                                    <table class="table table-hover">
-                                        <thead>
-                                            <tr>
-                                                <th>N° Cotización</th>
-                                                <th>Cliente</th>
-                                                <th>Fecha</th>
-                                                <th>Total</th>
-                                                <th>Estado</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <tr>
-                                                <td>COT-2025-00125</td>
-                                                <td>Constructora Andina S.A.</td>
-                                                <td>15/05/2025</td>
-                                                <td>$38.450.000</td>
-                                                <td><span class="badge bg-success">Aprobada</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>COT-2025-00124</td>
-                                                <td>Arq. María Pérez</td>
-                                                <td>02/05/2025</td>
-                                                <td>$13.200.000</td>
-                                                <td><span class="badge bg-success">Aprobada</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                            <tr>
-                                                <td>COT-2025-00123</td>
-                                                <td>Ing. Carlos Gómez</td>
-                                                <td>12/05/2025</td>
-                                                <td>$9.750.000</td>
-                                                <td><span class="badge bg-danger">Pendiente</span></td>
-                                                <td>
-                                                    <button class="btn btn-sm btn-outline-secondary">
-                                                        <i class="fas fa-eye"></i>
-                                                    </button>
-                                                </td>
-                                            </tr>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-        <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
-        <script>
-            // Inicializar animaciones
-            AOS.init({
-                duration: 800,
-                easing: 'ease-in-out',
-                once: true
-            });
+                    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+                    <script>
+                        // Inicializar animaciones
+                        AOS.init({
+                            duration: 800,
+                            easing: 'ease-in-out',
+                            once: true
+                        });
 
-            // Toggle sidebar simplificado
-            document.getElementById('toggleSidebar').addEventListener('click', function () {
-                const sidebar = document.getElementById('sidebar');
-                const mainContent = document.getElementById('mainContent');
-                sidebar.classList.toggle('sidebar-collapsed');
-                mainContent.classList.toggle('main-content-expanded');
-            });
+                        // Script para toggle sidebar
+                        document.getElementById('toggleSidebar').addEventListener('click', function () {
+                            const sidebar = document.getElementById('sidebar');
+                            const mainContent = document.getElementById('mainContent');
 
-            // Configuración del gráfico
-            document.addEventListener('DOMContentLoaded', function () {
-                const ctx = document.getElementById('salesChart');
-                if (ctx) {
-                    const salesCtx = ctx.getContext('2d');
+                            sidebar.classList.toggle('sidebar-collapsed');
+                            mainContent.classList.toggle('main-content-expanded');
+                        });
 
-                    const months = ['May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'];
-                    const currentYearSales = [45, 52, 60, 58, 65, 72, 80, 78, 85, 90, 95, 110];
-                    const targets = [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105];
+                        // Configuración del gráfico
+                        document.addEventListener('DOMContentLoaded', function () {
+                            const ctx = document.getElementById('salesChart');
+                            if (ctx) {
+                                const salesCtx = ctx.getContext('2d');
 
-                    function formatMillions(value) {
-                        return '$' + value.toFixed(1) + 'M';
-                    }
+                                const months = ['May', 'Jun', 'Jul', 'Ago', 'Sep', 'Oct', 'Nov', 'Dic', 'Ene', 'Feb', 'Mar', 'Abr'];
+                                const currentYearSales = [45, 52, 60, 58, 65, 72, 80, 78, 85, 90, 95, 110];
+                                const targets = [50, 55, 60, 65, 70, 75, 80, 85, 90, 95, 100, 105];
 
-                    const salesChart = new Chart(salesCtx, {
-                        type: 'bar',
-                        data: {
-                            labels: months,
-                            datasets: [
-                                {
-                                    label: 'Ventas Totales',
-                                    data: currentYearSales,
-                                    backgroundColor: '#cb9a28',
-                                    borderColor: '#000000',
-                                    borderWidth: 1,
-                                    borderRadius: 4
-                                },
-                                {
-                                    label: 'Objetivo',
-                                    data: targets,
-                                    type: 'line',
-                                    borderColor: '#000000',
-                                    backgroundColor: 'rgba(0, 0, 0, 0.1)',
-                                    borderWidth: 2,
-                                    pointBackgroundColor: '#000000',
-                                    pointRadius: 4,
-                                    fill: true
+                                function formatMillions(value) {
+                                    return '$' + value.toFixed(1) + 'M';
                                 }
-                            ]
-                        },
-                        options: {
-                            responsive: true,
-                            maintainAspectRatio: false,
-                            scales: {
-                                y: {
-                                    beginAtZero: true,
-                                    ticks: {callback: formatMillions},
-                                    grid: {drawBorder: false}
-                                },
-                                x: {grid: {display: false}}
-                            },
-                            plugins: {
-                                legend: {display: false},
-                                tooltip: {
-                                    callbacks: {
-                                        label: function (context) {
-                                            return context.dataset.label + ': ' + formatMillions(context.raw);
+
+                                const salesChart = new Chart(salesCtx, {
+                                    type: 'bar',
+                                    data: {
+                                        labels: months,
+                                        datasets: [
+                                            {
+                                                label: 'Ventas Totales',
+                                                data: currentYearSales,
+                                                backgroundColor: '#cb9a28',
+                                                borderColor: '#000000',
+                                                borderWidth: 1,
+                                                borderRadius: 4
+                                            },
+                                            {
+                                                label: 'Objetivo',
+                                                data: targets,
+                                                type: 'line',
+                                                borderColor: '#000000',
+                                                backgroundColor: 'rgba(0, 0, 0, 0.1)',
+                                                borderWidth: 2,
+                                                pointBackgroundColor: '#000000',
+                                                pointRadius: 4,
+                                                fill: true
+                                            }
+                                        ]
+                                    },
+                                    options: {
+                                        responsive: true,
+                                        maintainAspectRatio: false,
+                                        scales: {
+                                            y: {
+                                                beginAtZero: true,
+                                                ticks: {callback: formatMillions},
+                                                grid: {drawBorder: false}
+                                            },
+                                            x: {grid: {display: false}}
+                                        },
+                                        plugins: {
+                                            legend: {display: false},
+                                            tooltip: {
+                                                callbacks: {
+                                                    label: function (context) {
+                                                        return context.dataset.label + ': ' + formatMillions(context.raw);
+                                                    }
+                                                }
+                                            }
                                         }
                                     }
-                                }
+                                });
                             }
-                        }
-                    });
-                }
-            });
-        </script>
-    </body>
-</html>
+                        });
+                    </script>
+                    </body>
+                    </html>
