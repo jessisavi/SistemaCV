@@ -151,13 +151,11 @@
                                                 </c:forEach>
                                             </select>
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="fecha" class="form-label">Fecha de Venta <span class="text-danger">*</span></label>
                                             <input type="date" class="form-control" id="fecha" name="fecha" 
                                                    value="${not empty venta ? venta.fecha : fechaActual}" required>
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="metodoPago" class="form-label">Método de Pago <span class="text-danger">*</span></label>
                                             <select class="form-select" id="metodoPago" name="metodoPago" required>
@@ -168,19 +166,18 @@
                                             </select>
                                         </div>
                                     </div>
-
                                     <div class="col-md-6">
                                         <div class="mb-3">
                                             <label class="form-label">N° Factura</label>
                                             <input type="text" class="form-control" value="${venta.numeroFactura}" readonly>
                                             <small class="text-muted">Generado automáticamente</small>
                                         </div>
-
                                         <div class="mb-3">
-                                            <label class="form-label">Vendedor</label>
-                                            <input type="text" class="form-control" value="Asesor Comercial" readonly>
+                                            <label for="vendedor" class="form-label">Vendedor <span class="text-danger">*</span></label>
+                                            <input type="text" class="form-control" id="vendedor" name="vendedor" 
+                                                   value="${not empty nombreUsuario ? nombreUsuario : 'Asesor Comercial'}" 
+                                                   placeholder="Ingrese el nombre del vendedor" required>
                                         </div>
-
                                         <div class="mb-3">
                                             <label for="estado" class="form-label">Estado <span class="text-danger">*</span></label>
                                             <select class="form-select" id="estado" name="estado" required>
@@ -232,7 +229,7 @@
                                                                        value="<fmt:formatNumber value='${detalle.precioUnitario}' pattern="#,##0"/>" readonly>
                                                             </td>
                                                             <td>
-                                                                <input type="text" class="form-control total" 
+                                                                <input type="text" class="form-control total" name="Total" 
                                                                        value="<fmt:formatNumber value='${detalle.total}' pattern="#,##0"/>" readonly>
                                                             </td>
                                                         </tr>
@@ -255,10 +252,10 @@
                                                             <input type="number" class="form-control cantidad" name="cantidad" value="1" min="1" required>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control precio" name="precioUnitario" value="$0" readonly>
+                                                            <input type="text" class="form-control precio" name="precioUnitario" value="" placeholder="$0" readonly>
                                                         </td>
                                                         <td>
-                                                            <input type="text" class="form-control total" value="$0" readonly>
+                                                            <input type="text" class="form-control total" name="Total" value="" placeholder="$0" readonly>
                                                         </td>
                                                     </tr>
                                                 </c:otherwise>
@@ -332,6 +329,97 @@
                 mainContent.classList.toggle('main-content-expanded');
             });
 
+            // Función para formatear moneda 
+            function formatearMoneda(valor) {
+                // Asegurarse de que valor es un número
+                const numero = typeof valor === 'string' ? limpiarMoneda(valor) : Number(valor);
+                return new Intl.NumberFormat('es-CO', {
+                    style: 'currency',
+                    currency: 'COP',
+                    minimumFractionDigits: 0,
+                    maximumFractionDigits: 0
+                }).format(numero);
+            }
+
+            // Función para limpiar formato de moneda
+            function limpiarMoneda(texto) {
+                if (!texto || texto === '$0' || texto === '$' || texto === '')
+                    return 0;
+
+                // Eliminar símbolo de moneda, espacios y caracteres no numéricos excepto punto y coma
+                let limpio = texto.toString().replace(/[$\s]/g, '');
+
+                // Si está vacío después de limpiar, retornar 0
+                if (!limpio)
+                    return 0;
+
+                // Reemplazar coma por punto para decimales (si existe)
+                limpio = limpio.replace(',', '.');
+
+                // Eliminar todos los puntos excepto el último (para decimales)
+                const partes = limpio.split('.');
+                if (partes.length > 1) {
+                    // Si hay múltiples puntos, probablemente son separadores de miles
+                    limpio = partes.join(''); // Eliminar todos los puntos
+                }
+
+                const resultado = parseFloat(limpio);
+                return isNaN(resultado) ? 0 : resultado;
+            }
+
+            // Función para inicializar valores de precio y total
+            function inicializarValores() {
+                document.querySelectorAll('#productosBody tr').forEach(row => {
+                    const productoSelect = row.querySelector('.producto-select');
+                    const precioInput = row.querySelector('.precio');
+                    const totalInput = row.querySelector('.total');
+
+                    // Solo formatear si hay un producto seleccionado
+                    if (productoSelect.value) {
+                        const selectedOption = productoSelect.options[productoSelect.selectedIndex];
+                        if (selectedOption && selectedOption.value) {
+                            const precio = parseFloat(selectedOption.getAttribute('data-precio')) || 0;
+                            const cantidad = parseInt(row.querySelector('.cantidad').value) || 0;
+                            const total = precio * cantidad;
+
+                            precioInput.value = formatearMoneda(precio);
+                            totalInput.value = formatearMoneda(total);
+                        }
+                    } else {
+                        // Si no hay producto seleccionado, dejar vacíos
+                        precioInput.value = '';
+                        totalInput.value = '';
+                    }
+                });
+                calcularTotales();
+            }
+
+            // Función para actualizar precio y total 
+            function actualizarPrecioYTotal() {
+                const row = this.closest('tr');
+                const productoSelect = row.querySelector('.producto-select');
+                const precioInput = row.querySelector('.precio');
+                const totalInput = row.querySelector('.total');
+                const cantidadInput = row.querySelector('.cantidad');
+
+                // Obtener precio desde el atributo data-precio (ya viene como número del backend)
+                let precio = 0;
+                const selectedOption = productoSelect.options[productoSelect.selectedIndex];
+                if (selectedOption && selectedOption.value) {
+                    precio = parseFloat(selectedOption.getAttribute('data-precio')) || 0;
+                }
+
+                const cantidad = parseInt(cantidadInput.value) || 0;
+                const total = precio * cantidad;
+
+                // Actualizar campos con formato 
+                precioInput.value = formatearMoneda(precio);
+                totalInput.value = formatearMoneda(total);
+
+                // Calcular totales generales
+                calcularTotales();
+            }
+
             // Funcionalidad para agregar productos
             document.getElementById('agregarProducto').addEventListener('click', function () {
                 const tbody = document.getElementById('productosBody');
@@ -343,61 +431,75 @@
                     <td>
                         <select class="form-select producto-select" name="productoId" required>
                             <option value="">Seleccionar producto...</option>
-            <c:forEach var="producto" items="${productos}">
-                                <option value="${producto.id}" data-precio="${producto.precio}">
-                ${producto.nombre} - <fmt:formatNumber value="${producto.precio}" pattern="#,##0"/>
-                                </option>
-            </c:forEach>
                         </select>
                     </td>
                     <td>
                         <input type="number" class="form-control cantidad" name="cantidad" value="1" min="1" required>
                     </td>
                     <td>
-                        <input type="text" class="form-control precio" name="precioUnitario" value="$0" readonly>
+                        <input type="text" class="form-control precio" name="precioUnitario" value="" placeholder="$0" readonly>
                     </td>
                     <td>
-                        <input type="text" class="form-control total" value="$0" readonly>
+                        <input type="text" class="form-control total" name="Total" value="" placeholder="$0" readonly>
+                    </td>
+                    <td>
+                        <button type="button" class="btn btn-sm btn-danger eliminar-fila">
+                            <i class="fas fa-trash"></i>
+                        </button>
                     </td>
                 `;
 
                 tbody.appendChild(newRow);
 
+                // Copiar opciones de productos del primer select
+                const selectOriginal = document.querySelector('.producto-select');
+                const nuevoSelect = newRow.querySelector('.producto-select');
+
+                if (selectOriginal && nuevoSelect) {
+                    for (let i = 1; i < selectOriginal.options.length; i++) {
+                        const option = selectOriginal.options[i].cloneNode(true);
+                        nuevoSelect.appendChild(option);
+                    }
+                }
+
                 // Agregar event listeners a los nuevos elementos
                 agregarEventListeners(newRow);
+
+                // Renumerar filas
+                renumerarFilas();
             });
 
-            // Función para agregar event listeners a una fila
             function agregarEventListeners(row) {
                 const productoSelect = row.querySelector('.producto-select');
                 const cantidadInput = row.querySelector('.cantidad');
-                const precioInput = row.querySelector('.precio');
-                const totalInput = row.querySelector('.total');
+                const eliminarBtn = row.querySelector('.eliminar-fila');
 
-                function actualizarPrecioYTotal() {
-                    const selectedOption = productoSelect.options[productoSelect.selectedIndex];
-                    const precio = selectedOption ? parseFloat(selectedOption.getAttribute('data-precio')) || 0 : 0;
-                    const cantidad = parseInt(cantidadInput.value) || 0;
-                    const total = precio * cantidad;
-
-                    precioInput.value = new Intl.NumberFormat('es-CO', {
-                        style: 'currency',
-                        currency: 'COP'
-                    }).format(precio);
-
-                    totalInput.value = new Intl.NumberFormat('es-CO', {
-                        style: 'currency',
-                        currency: 'COP'
-                    }).format(total);
-
-                    calcularTotales();
-                }
-
+                // Usar la función corregida
                 productoSelect.addEventListener('change', actualizarPrecioYTotal);
                 cantidadInput.addEventListener('input', actualizarPrecioYTotal);
 
+                // Eliminar fila
+                if (eliminarBtn) {
+                    eliminarBtn.addEventListener('click', function () {
+                        if (confirm('¿Está seguro de eliminar este producto?')) {
+                            row.remove();
+                            renumerarFilas();
+                            calcularTotales();
+                        }
+                    });
+                }
+
                 // Inicializar si hay valores
-                actualizarPrecioYTotal();
+                const event = new Event('change');
+                productoSelect.dispatchEvent(event);
+            }
+
+            // Función para renumerar las filas
+            function renumerarFilas() {
+                const filas = document.querySelectorAll('#productosBody tr');
+                filas.forEach((fila, index) => {
+                    fila.querySelector('td:first-child').textContent = index + 1;
+                });
             }
 
             // Calcular totales generales
@@ -406,35 +508,46 @@
 
                 document.querySelectorAll('#productosBody tr').forEach(row => {
                     const totalInput = row.querySelector('.total');
-                    const totalValue = totalInput.value.replace(/[^\d.-]/g, '');
-                    subtotal += parseFloat(totalValue) || 0;
+                    if (totalInput && totalInput.value) {
+                        const totalValue = limpiarMoneda(totalInput.value);
+                        subtotal += totalValue;
+                    }
                 });
 
+                const descuento = 0; // Puedes agregar un campo para descuento si lo necesitas
                 const iva = subtotal * 0.19;
-                const total = subtotal + iva;
+                const total = subtotal - descuento + iva;
 
-                document.getElementById('subtotal').textContent = new Intl.NumberFormat('es-CO', {
-                    style: 'currency',
-                    currency: 'COP'
-                }).format(subtotal);
+                // Actualizar los elementos de resumen si existen
+                const subtotalElement = document.querySelector('.card-body .d-flex:nth-child(1) span:last-child');
+                const ivaElement = document.querySelector('.card-body .d-flex:nth-child(3) span:last-child');
+                const totalElement = document.querySelector('.card-body .fw-bold span:last-child');
+                const descuentoElement = document.querySelector('.card-body .d-flex:nth-child(2) span:last-child');
 
-                document.getElementById('iva').textContent = new Intl.NumberFormat('es-CO', {
-                    style: 'currency',
-                    currency: 'COP'
-                }).format(iva);
-
-                document.getElementById('total').textContent = new Intl.NumberFormat('es-CO', {
-                    style: 'currency',
-                    currency: 'COP'
-                }).format(total);
+                if (subtotalElement)
+                    subtotalElement.textContent = formatearMoneda(subtotal);
+                if (descuentoElement)
+                    descuentoElement.textContent = formatearMoneda(descuento);
+                if (ivaElement)
+                    ivaElement.textContent = formatearMoneda(iva);
+                if (totalElement)
+                    totalElement.textContent = formatearMoneda(total);
             }
 
             // Inicializar event listeners para las filas existentes
-            document.querySelectorAll('#productosBody tr').forEach(row => {
-                agregarEventListeners(row);
+            document.addEventListener('DOMContentLoaded', function () {
+                document.querySelectorAll('#productosBody tr').forEach(row => {
+                    agregarEventListeners(row);
+                });
+
+                // Inicializar valores correctamente
+                inicializarValores();
+
+                // Calcular totales iniciales
+                calcularTotales();
             });
 
-            // Validación del formulario
+            // Validación del formulario (CORREGIDA)
             document.getElementById('ventaForm').addEventListener('submit', function (e) {
                 const productos = document.querySelectorAll('.producto-select');
                 let tieneProductos = false;
@@ -448,15 +561,20 @@
                 if (!tieneProductos) {
                     e.preventDefault();
                     alert('Debe agregar al menos un producto a la venta.');
-                    return;
+                    return false;
                 }
 
-                const total = parseFloat(document.getElementById('total').textContent.replace(/[^\d.-]/g, ''));
+                // Obtener el total limpio
+                const totalElement = document.querySelector('.card-body .fw-bold span:last-child');
+                const total = totalElement ? limpiarMoneda(totalElement.textContent) : 0;
+
                 if (total <= 0) {
                     e.preventDefault();
                     alert('El total de la venta debe ser mayor a cero.');
-                    return;
+                    return false;
                 }
+
+                return true;
             });
         </script>
     </body>
